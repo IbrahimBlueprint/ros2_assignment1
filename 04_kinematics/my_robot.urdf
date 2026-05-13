@@ -1,0 +1,163 @@
+<?xml version="1.0"?>
+<robot name="my_turtle_robot">
+
+  <material name="green">
+    <color rgba="0.13 0.65 0.35 1.0"/>
+  </material>
+  <material name="dark_gray">
+    <color rgba="0.25 0.25 0.27 1.0"/>
+  </material>
+  <material name="black">
+    <color rgba="0.1 0.1 0.1 1.0"/>
+  </material>
+
+  <link name="world"/>
+
+  <joint name="world_to_base" type="fixed">
+    <parent link="world"/>
+    <child link="base_link"/>
+    <origin xyz="0 0 0.07" rpy="0 0 0"/>
+  </joint>
+
+  <link name="base_link">
+    <visual>
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+      <geometry>
+        <box size="0.40 0.30 0.02"/>
+      </geometry>
+      <material name="green"/>
+    </visual>
+  </link>
+
+  <joint name="base_to_pillar_fl" type="fixed">
+    <parent link="base_link"/>
+    <child link="pillar_fl"/>
+    <origin xyz="0.15 0.10 0.07" rpy="0 0 0"/>
+  </joint>
+  <link name="pillar_fl">
+    <visual>
+      <geometry>
+        <cylinder radius="0.015" length="0.12"/>
+      </geometry>
+      <material name="dark_gray"/>
+    </visual>
+  </link>
+
+  <joint name="base_to_pillar_fr" type="fixed">
+    <parent link="base_link"/>
+    <child link="pillar_fr"/>
+    <origin xyz="0.15 -0.10 0.07" rpy="0 0 0"/>
+  </joint>
+  <link name="pillar_fr">
+    <visual>
+      <geometry>
+        <cylinder radius="0.015" length="0.12"/>
+      </geometry>
+      <material name="dark_gray"/>
+    </visual>
+  </link>
+
+  <joint name="base_to_pillar_rl" type="fixed">
+    <parent link="base_link"/>
+    <child link="pillar_rl"/>
+    <origin xyz="-0.15 0.10 0.07" rpy="0 0 0"/>
+  </joint>
+  <link name="pillar_rl">
+    <visual>
+      <geometry>
+        <cylinder radius="0.015" length="0.12"/>
+      </geometry>
+      <material name="dark_gray"/>
+    </visual>
+  </link>
+
+  <joint name="base_to_pillar_rr" type="fixed">
+    <parent link="base_link"/>
+    <child link="pillar_rr"/>
+    <origin xyz="-0.15 -0.10 0.07" rpy="0 0 0"/>
+  </joint>
+  <link name="pillar_rr">
+    <visual>
+      <geometry>
+        <cylinder radius="0.015" length="0.12"/>
+      </geometry>
+      <material name="dark_gray"/>
+    </visual>
+  </link>
+
+  <joint name="base_to_top_floor" type="fixed">
+    <parent link="base_link"/>
+    <child link="top_floor"/>
+    <origin xyz="0 0 0.14" rpy="0 0 0"/>
+  </joint>
+  <link name="top_floor">
+    <visual>
+      <geometry>
+        <box size="0.40 0.30 0.02"/>
+      </geometry>
+      <material name="green"/>
+    </visual>
+  </link>
+
+  <joint name="base_to_wheel_fl" type="continuous">
+    <parent link="base_link"/>
+    <child link="wheel_fl"/>
+    <origin xyz="0.15 0.16 -0.05" rpy="-1.5708 0 0"/>
+    <axis xyz="0 0 1"/>
+  </joint>
+  <link name="wheel_fl">
+    <visual>
+      <geometry>
+        <cylinder radius="0.05" length="0.03"/>
+      </geometry>
+      <material name="black"/>
+    </visual>
+  </link>
+
+  <joint name="base_to_wheel_fr" type="continuous">
+    <parent link="base_link"/>
+    <child link="wheel_fr"/>
+    <origin xyz="0.15 -0.16 -0.05" rpy="-1.5708 0 0"/>
+    <axis xyz="0 0 1"/>
+  </joint>
+  <link name="wheel_fr">
+    <visual>
+      <geometry>
+        <cylinder radius="0.05" length="0.03"/>
+      </geometry>
+      <material name="black"/>
+    </visual>
+  </link>
+
+  <joint name="base_to_wheel_rl" type="continuous">
+    <parent link="base_link"/>
+    <child link="wheel_rl"/>
+    <origin xyz="-0.15 0.16 -0.05" rpy="-1.5708 0 0"/>
+    <axis xyz="0 0 1"/>
+  </joint>
+  <link name="wheel_rl">
+    <visual>
+      <geometry>
+        <cylinder radius="0.05" length="0.03"/>
+      </geometry>
+      <material name="black"/>
+    </visual>
+  </link>
+
+  <joint name="base_to_wheel_rr" type="continuous">
+    <parent link="base_link"/>
+    <child link="wheel_rr"/>
+    <origin xyz="-0.15 -0.16 -0.05" rpy="-1.5708 0 0"/>
+    <axis xyz="0 0 1"/>
+  </joint>
+  <link name="wheel_rr">
+    <visual>
+      <geometry>
+        <cylinder radius="0.05" length="0.03"/>
+      </geometry>
+      <material name="black"/>
+    </visual>
+  </link>
+
+</robot>
+

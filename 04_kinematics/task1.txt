@@ -1,0 +1,132 @@
+============================================================
+Task 1 - Robot Kinematics vs Dynamics, Forward vs Inverse
+============================================================
+
+Context
+-------
+The robot considered here is the simple two-wheel turtle robot
+from Assignment 2. It is a differential-drive mobile robot:
+two independently driven wheels (left and right) mounted on a
+common axle. Its pose in the plane is described by (x, y, theta),
+where (x, y) is the position of the robot in the world frame and
+theta is its orientation (heading angle). Its control inputs are
+the angular velocities of the two wheels: omega_L (left wheel)
+and omega_R (right wheel). Let r be the wheel radius and L be
+the distance between the two wheels.
+
+
+1) Forward Kinematics
+---------------------
+Forward kinematics answers the question:
+"Given the motion of the wheels (joint-level inputs), what is
+ the resulting motion / pose of the robot in the world?"
+
+It is a purely geometric relationship - no forces, no masses,
+no torques are involved. We only relate the velocities of the
+wheels to the velocity of the robot body.
+
+For the differential-drive turtle:
+    v     = r * (omega_R + omega_L) / 2      (linear velocity)
+    omega = r * (omega_R - omega_L) / L      (angular velocity)
+
+Then the pose is obtained by integrating over time:
+    x_dot     = v * cos(theta)
+    y_dot     = v * sin(theta)
+    theta_dot = omega
+
+So as a programmer, if I know how fast each wheel turns, forward
+kinematics tells me where my turtle will end up and how it will
+be oriented.
+
+
+2) Inverse Kinematics
+---------------------
+Inverse kinematics answers the opposite question:
+"Given a desired motion of the robot (a desired v and omega, or
+ a desired target pose), what wheel velocities do I have to
+ command?"
+
+It is the inversion of the forward kinematics. For the turtle:
+    omega_R = (2*v + omega*L) / (2*r)
+    omega_L = (2*v - omega*L) / (2*r)
+
+This is what we actually use in navigation: the planner gives us
+a desired linear and angular velocity (e.g. via a /cmd_vel
+Twist message), and inverse kinematics tells the controller how
+fast to spin the left and right wheels.
+
+Note: for a differential-drive robot, inverse kinematics has a
+unique solution, because the system has exactly 2 inputs and
+2 controllable velocity components (v, omega). For robotic arms
+with many joints, inverse kinematics can have multiple solutions
+or no solution at all.
+
+
+3) Forward Dynamics
+-------------------
+Forward dynamics introduces forces, torques, masses and inertia
+into the picture. It answers:
+"Given the torques applied to the wheels (and external forces
+ like friction), how does the robot actually accelerate and
+ move over time?"
+
+So instead of just mapping velocities to velocities, we map
+forces/torques to accelerations. We need a physical model of
+the robot:
+    - mass m of the robot
+    - moment of inertia I around its vertical axis
+    - wheel inertia
+    - friction, slipping, motor characteristics
+
+Conceptually, given torques tau_L and tau_R on the wheels:
+    M(q) * q_ddot + C(q, q_dot) * q_dot + F = tau
+
+Forward dynamics integrates this equation to produce the actual
+trajectory the robot follows under those torques. It is what a
+physics simulator (Gazebo, Webots, ...) computes internally.
+
+
+4) Inverse Dynamics
+-------------------
+Inverse dynamics is the opposite:
+"Given a desired motion (desired accelerations / a desired
+ trajectory of v and omega), what torques must the motors apply
+ to the wheels to actually realize it, taking mass, inertia and
+ friction into account?"
+
+It is what a torque-level controller computes:
+    tau = M(q) * q_ddot_desired + C(q, q_dot) * q_dot + F
+
+For the turtle, inverse dynamics would tell us how much torque
+the left and right motors must produce so that the robot
+actually accelerates to the velocities commanded by inverse
+kinematics, despite friction, mass and inertia.
+
+
+Summary table
+-------------
+                    | Input                | Output
+--------------------+----------------------+-------------------
+Forward kinematics  | wheel velocities     | robot pose/velocity
+Inverse kinematics  | desired robot motion | wheel velocities
+Forward dynamics    | torques / forces     | resulting motion
+Inverse dynamics    | desired motion       | required torques
+
+Key distinction:
+- KINEMATICS = geometry of motion only (no masses, no forces).
+- DYNAMICS   = motion together with the forces/torques that
+               cause it (Newton/Euler, Lagrange, ...).
+- FORWARD    = from inputs/causes to resulting motion.
+- INVERSE    = from desired motion back to the required inputs.
+
+As the programmer of the two-wheel turtle robot:
+- I use INVERSE KINEMATICS to convert a desired (v, omega)
+  from the navigation stack into wheel commands omega_L,
+  omega_R.
+- I use FORWARD KINEMATICS (odometry) to estimate the current
+  pose of the robot from the measured wheel rotations.
+- I would use INVERSE DYNAMICS if I controlled the motors at
+  the torque level and wanted to compensate for inertia and
+  friction precisely.
+- I would use FORWARD DYNAMICS inside a physics simulator to
+  predict the real behavior of the turtle under given torques.
