@@ -1,0 +1,80 @@
+Assignment 5 - Task 1: Robotic Sensing - LiDAR Utility, Limitations, and Error Handling
+==========================================================================================
+
+=== 1. LiDAR Utility and Constraints ===
+
+--- Application ---
+The primary use of a 1D LiDAR on a differential drive robot is obstacle detection and
+distance measurement. It emits a laser beam in a single direction and measures the
+distance to the nearest object, enabling the robot to detect walls, obstacles, or
+boundaries directly in front of it and react accordingly (e.g., stop or turn).
+
+For tracking the robot pose (position + orientation), a 1D LiDAR alone is insufficient.
+Appropriate sensors for pose tracking include:
+- Wheel encoders (odometry): measure wheel rotations to estimate displacement
+- IMU (Inertial Measurement Unit): measures acceleration and angular velocity
+- GPS: provides absolute position outdoors
+- Camera (Visual Odometry): estimates pose from image sequences
+- 2D/3D LiDAR combined with SLAM algorithms (e.g., gmapping, Cartographer)
+
+--- Limitations ---
+Three physical or environmental scenarios where a 1D LiDAR will fail:
+
+1. Transparent or reflective surfaces: Glass walls or mirrors either absorb, scatter,
+   or reflect the laser beam in unexpected directions, causing false or missing readings.
+
+2. Low or uneven obstacles: A 1D LiDAR measures only at a fixed height. It cannot
+   detect objects below or above its scan plane, such as a step, a hole in the floor,
+   or an overhead obstacle.
+
+3. Highly absorptive surfaces: Dark or matte black surfaces absorb the laser beam and
+   return very weak or no signal, leading to incorrect "no obstacle" readings even when
+   an object is present.
+
+--- Mitigation ---
+To overcome these blind spots, an RGB-D camera (depth camera, e.g., Intel RealSense
+or Microsoft Kinect) would be the best complementary sensor modality:
+- It provides a full 2D depth image, detecting obstacles at all heights in the field of view.
+- It works on transparent surfaces using structured light or time-of-flight methods.
+- It is unaffected by surface absorption since it uses infrared or structured light patterns.
+Combined with the 1D LiDAR, the robot gains robust spatial awareness both in the
+laser plane and above/below it.
+
+
+=== 2. Error Analysis and Denoising ===
+
+--- Systematic vs. Random Errors ---
+
+Systematic Errors:
+- Are consistent, repeatable, and predictable.
+- Caused by a permanent bias in the sensor, such as a miscalibrated zero point,
+  manufacturing tolerances, or a fixed offset.
+- Example: A LiDAR always reads 5 cm less than the true distance due to a hardware offset.
+
+Random Errors:
+- Are unpredictable and vary from measurement to measurement.
+- Caused by noise sources such as electrical interference, atmospheric fluctuations,
+  or surface texture variations.
+- Example: Repeated measurements of the same static wall return slightly different
+  distance values each time.
+
+--- Error Removal Techniques ---
+
+Removing Random Errors:
+- Filtering / Averaging: Take multiple measurements and compute the mean or median.
+  A Gaussian filter or a moving average smooths out random fluctuations.
+- Kalman Filter: Combines sensor measurements with a motion model to optimally
+  estimate the true state while suppressing noise.
+
+Removing Systematic Errors:
+- Calibration: The sensor is compared against a known ground truth reference.
+  A correction factor or offset is determined and applied to all future measurements.
+  Example: Measuring a wall at a precisely known distance of 1.000 m and correcting
+  the sensor output to match that value.
+
+--- Calibration ---
+Calibration is formally the process of removing Systematic Errors.
+It involves measuring a known reference and adjusting the sensor model
+(e.g., applying a bias correction or scale factor) so that the sensor output
+matches the true physical value. This is a one-time or periodic procedure,
+distinct from real-time noise filtering which addresses random errors.
